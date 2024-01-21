@@ -54,6 +54,20 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
+            - name: Deploy with use of SSH
+              uses: appleboy/ssh-action@master
+              with:
+                  host: ${{ secrets.SERVER_ADDRESS }}
+                  username: ${{ secrets.SERVER_USER }}
+                  password: ${{ secrets.SERVER_PASSWORD }}
+                  port: 22
+                  script: |
+                      cd tbo-projekt
+                      git pull
+                      docker compose -f compose-latest.yaml down
+                      docker build --build-arg="PORT=5000" -t godot911/tbo-projekt:latest .
+                      docker compose -f compose-latest.yaml up -d
+
             # - name: ZAP Baseline Scan
             #   uses: zaproxy/action-baseline@v0.10.0
             #   with:
