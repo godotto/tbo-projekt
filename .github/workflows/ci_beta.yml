@@ -105,3 +105,4 @@ jobs:
                   file: ./Dockerfile
                   push: true
                   tags: ${{ secrets.DOCKER_USER }}/tbo-projekt:beta
+                  build-args: PORT=5000
