@@ -3,3 +3,8 @@
 
 # VS Code config
 .vscode/
+
+project/__pycache__
+project/*/__pycache__
+tests/__pycache__
+project/data.sqlite

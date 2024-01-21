@@ -4,18 +4,38 @@ on:
     workflow_dispatch:
 
 jobs:
+    test-unit:
+        name: Run unit tests
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v4
+              with:
+                  python-version: "3.x"
+
+            - name: Install dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -r requirements.txt
+            - name: Test with pytest
+              run: |
+                  python3 -m unittest tests/*.py
+
     test-sast:
         name: Run SAST tests
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
               uses: actions/checkout@v4
-            
+
             - name: Run gitleaks
               uses: gitleaks/gitleaks-action@v2
               env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
             - name: Install bandit package
               if: always()
               run: pip3 install bandit
@@ -57,6 +77,7 @@ jobs:
               with:
                   name: Dependency check report
                   path: ${{github.workspace}}/reports
+
     build:
         name: Build beta image
         needs: [test-sast, test-dast, test-sca]
