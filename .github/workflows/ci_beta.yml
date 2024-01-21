@@ -1,6 +1,9 @@
 name: CI beta image
 
 on:
+    push:
+        branches-ignore:
+            - master
     workflow_dispatch:
 
 jobs:
