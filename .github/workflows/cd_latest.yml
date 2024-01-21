@@ -1,23 +1,32 @@
-name: Deploy latest image on server
+name: Deploy latest image on Docker Hub
 
 on:
-    workflow_run:
-        workflows: ["CI latest image"]
-        types:
-            - completed
+    push:
+        branches:
+            - master
 
 jobs:
-    deploy:
+    build:
+        name: Build and push latest image
         runs-on: ubuntu-latest
         steps:
-            - name: Deploy with use of SSH
-              uses: appleboy/ssh-action@master
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Login to Docker Hub
+              uses: docker/login-action@v3
               with:
-                  host: ${{ secrets.SERVER_ADDRESS }}
-                  username: ${{ secrets.SERVER_USER }}
-                  password: ${{ secrets.SERVER_PASSWORD }}
-                  port: 22
-                  script: |
-                      docker compose -f compose-latest.yaml down
-                      docker pull godot911/tbo-projekt:latest
-                      docker compose -f compose-latest.yaml up -d
+                  username: ${{ secrets.DOCKER_USER }}
+                  password: ${{ secrets.DOCKER_PASSWORD }}
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Build and push
+              uses: docker/build-push-action@v5
+              with:
+                  context: .
+                  file: ./Dockerfile
+                  push: true
+                  tags: ${{ secrets.DOCKER_USER }}/tbo-projekt:latest
+                  build-args: PORT=5001
