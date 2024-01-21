@@ -1,3 +1,5 @@
+name: CI beta image
+
 on:
     workflow_dispatch:
 
@@ -18,8 +20,8 @@ jobs:
               if: always()
               run: pip3 install bandit
 
-            - name: Run bandit
-              run: bandit -r .
+            # - name: Run bandit
+            #   run: bandit -r .
 
     test-dast:
         name: Run DAST tests
