@@ -1,0 +1,107 @@
+name: CI latest image
+
+on:
+    push:
+        branches-ignore:
+            - master
+    workflow_dispatch:
+
+jobs:
+    test-unit:
+        name: Run unit tests
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v4
+              with:
+                  python-version: "3.x"
+
+            - name: Install dependencies
+              run: |
+                  python3 -m pip install --upgrade pip
+                  pip3 install -r requirements.txt
+            - name: Test with pytest
+              run: |
+                  python3 -m unittest tests/*.py
+
+    test-sast:
+        name: Run SAST tests
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Run gitleaks
+              uses: gitleaks/gitleaks-action@v2
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Install bandit package
+              if: always()
+              run: pip3 install bandit
+
+            - name: Run bandit
+              run: bandit -r .
+
+    test-dast:
+        name: Run DAST tests
+        runs-on: ubuntu-latest
+        permissions: write-all
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            # - name: ZAP Baseline Scan
+            #   uses: zaproxy/action-baseline@v0.10.0
+            #   with:
+            #       target: ${{ secrets.SERVER_URI }}
+            #       allow_issue_writing: false
+
+    test-sca:
+        name: Run SCA tests
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            # - name: Run dependency check
+            #   uses: dependency-check/Dependency-Check_Action@main
+            #   with:
+            #       project: "tbo-projekt"
+            #       path: "."
+            #       format: "HTML"
+            #       out: "reports"
+
+            # - name: Upload dependency check results
+            #   uses: actions/upload-artifact@master
+            #   with:
+            #       name: Dependency check report
+            #       path: ${{github.workspace}}/reports
+
+    build:
+        name: Build latest image
+        needs: [test-sca] # [test-sast, test-dast, test-sca, test-unit]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Login to Docker Hub
+              uses: docker/login-action@v3
+              with:
+                  username: ${{ secrets.DOCKER_USER }}
+                  password: ${{ secrets.DOCKER_PASSWORD }}
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Build and push
+              uses: docker/build-push-action@v5
+              with:
+                  context: .
+                  file: ./Dockerfile
+                  push: true
+                  tags: ${{ secrets.DOCKER_USER }}/tbo-projekt:latest
