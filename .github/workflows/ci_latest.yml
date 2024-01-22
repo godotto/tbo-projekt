@@ -38,7 +38,7 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITLEAKS_ENABLE_SUMMARY: false
-                  
+
             - name: Install bandit package
               if: always()
               run: pip3 install bandit
@@ -90,6 +90,8 @@ jobs:
                   path: "."
                   format: "HTML"
                   out: "reports"
+                  args: >
+                      --failOnCVSS 5
 
             - name: Upload dependency check results
               uses: actions/upload-artifact@master
