@@ -80,6 +80,7 @@ jobs:
               with:
                   target: ${{ secrets.SERVER_URI }}
                   allow_issue_writing: false
+                  fail_action: true
 
     test-sca:
         name: Run SCA tests
