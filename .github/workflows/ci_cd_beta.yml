@@ -108,6 +108,7 @@ jobs:
                       --failOnCVSS 5
 
             - name: Upload dependency check results
+              if: always()
               uses: actions/upload-artifact@master
               with:
                   name: Dependency check report

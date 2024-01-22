@@ -44,8 +44,15 @@ jobs:
               run: pip3 install bandit
 
             - name: Run bandit
-              run: bandit -r .
+              run: bandit -r . -f html -o bandit-results.html
 
+            - name: Upload bandit results
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                name: bandit results
+                path: bandit-results.html
+                 
     test-dast:
         name: Run DAST tests
         runs-on: ubuntu-latest
@@ -94,6 +101,7 @@ jobs:
                       --failOnCVSS 5
 
             - name: Upload dependency check results
+              if: always()
               uses: actions/upload-artifact@master
               with:
                   name: Dependency check report
