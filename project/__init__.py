@@ -3,6 +3,11 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
+def is_on_github_actions():
+    if "CI" not in os.environ or not os.environ["CI"] or "GITHUB_RUN_ID" not in os.environ:
+        return False
+    else:
+        return True
 
 # Database Setup
 app = Flask(__name__)
@@ -11,7 +16,13 @@ app.config['SECRET_KEY'] = 'supersecret' # To allow us to use forms
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.path.join(basedir, 'data.sqlite')
+password = "password123"
+
+if is_on_github_actions():
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.path.join(basedir, 'data.sqlite')
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://admin:{password}@tbo-mysql/tbo"
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)

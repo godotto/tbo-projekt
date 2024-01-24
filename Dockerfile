@@ -10,6 +10,8 @@ WORKDIR /app
 COPY . .
 
 # Instalujemy zależności
+RUN apt-get update; \
+    apt-get install -y python3-dev default-libmysqlclient-dev build-essential
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Ustawiamy zmienną środowiskową, aby Flask wiedział, jak uruchomić aplikację
