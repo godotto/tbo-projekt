@@ -17,6 +17,8 @@ class Customer(db.Model):
     def __repr__(self):
         return f"Customer(ID: {self.id}, Name: {self.name}, City: {self.city}, Age: {self.age})"
 
+    def get_customers(self):
+        db.session.execute(f'SELECT * FROM customers WHERE name = {self.name}')
 
 with app.app_context():
     db.create_all()
