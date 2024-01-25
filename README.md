@@ -1,4 +1,4 @@
-# Projekt procesu CI/CD
+# Projekt procesu CICD
 
 Zespół:
 - Maciej Marcinkiewicz
